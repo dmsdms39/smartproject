@@ -1,0 +1,10 @@
+{% extends 'Layout.html' %}
+
+{% block body %}
+  <h1>{{article.line_eqp_id}}</h1>
+  <small>written by {{article.id}} on {{article.start_t}}</small>
+  <hr>
+  <div>
+    {{article.body | safe }}
+  </div>
+{% endblock %}
