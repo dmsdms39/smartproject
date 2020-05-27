@@ -1,9 +1,10 @@
-from flask import render_template, jsonify
+from flask import render_template, jsonify, request
 import pandas as pd
 
 from apps import app, db
 from .params import *
 from .graph import *
+from .apiurl import *
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -77,7 +78,7 @@ def article(idx):
 
     return render_template('article.html',article=planeqp)
 
-# @app.route('/article/<string:id>/')asdfsdf
+# @app.route('/article/<string:id>/')
 # def article(id):
 #     #create cursor
 #     cur = mysql.connection.cursor()
@@ -101,3 +102,8 @@ def graphjson2():
     operating_chart = operating_ratio()
 
     return render_template('index2.html', plot2=operating_chart)
+
+@app.route('/api/process_product')
+def process_product_api():
+    return process_product()
+

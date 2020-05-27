@@ -1,11 +1,12 @@
 from .models import *
 from apps import db
 import pandas as pd
+from datetime import datetime
 
 def uploadOne(clss, df):
     if not clss.query.all():
         for i in df :
-            step_obj = clss(id = i)
+            step_obj = clss(id = i, create_t = datetime.now())
             db.session.add(step_obj)
         db.session.commit()
 

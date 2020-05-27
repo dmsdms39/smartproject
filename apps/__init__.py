@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
@@ -11,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:1234@localhost/tbl_data'
 
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 #migrator 추가
 
@@ -22,6 +24,7 @@ manager.add_command('db', MigrateCommand)
 
 import apps.controller
 import apps.models
+import apps.apiurl
 
 # res_eqp1 = vm_res_eqp.filter_by(std_day='2019-05-05').line
 # res_eqp1.line
