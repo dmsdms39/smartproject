@@ -11,7 +11,6 @@ from .apiurl import *
 def index():
     return render_template('home.html')
 
-
 # @app.route('/index')
 # def index():
 #     bar = create_gantt()

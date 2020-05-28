@@ -25,6 +25,7 @@ manager.add_command('db', MigrateCommand)
 import apps.controller
 import apps.models
 import apps.apiurl
+import apps.dashdesign
 
 # res_eqp1 = vm_res_eqp.filter_by(std_day='2019-05-05').line
 # res_eqp1.line
