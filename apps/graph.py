@@ -26,6 +26,20 @@ def process_product():
 
     return graphJSON
 
+def process_product_fig():
+    planeqp = db.session.query(PlanEQP).filter()
+    df1 = pd.read_sql(planeqp.statement, planeqp.session.bind)
+    df1.rename(columns = {"start_t":"Start", "end_t":"Finish", "id":"Task"}, inplace = True)
+
+    df1=df1.to_dict('records')
+    for i in df1:
+        i['Task'] = StdLineEQP.query.filter_by(id = i['line_eqp_id']).first().eqp_id
+    
+    fig = ff.create_gantt(df1, index_col='prod_id', title='Process by products', group_tasks=True,
+                        show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
+
+    return fig
+
 
 ## 가동률그래프 index2.html
 def operating_ratio():

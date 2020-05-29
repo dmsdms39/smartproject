@@ -1,7 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-
+from .graph import *
 from flask import render_template, jsonify, request, redirect
 from apps import app, db, ma
 import pandas as pd
@@ -25,7 +25,7 @@ def description_card():
     return html.Div(
         id="description-card",
         children=[
-            html.H5("SMART FACROTY Dashboard"),
+            html.H5("Smart Factory Dashboard"),
             html.H3("Welcome to the Smart Factory Scheduling System"),
             html.Div(
                 id="intro",
@@ -122,6 +122,7 @@ def generate_table_row_helper(department):
         {"id": department + "_department", "children": html.B(department)},
         {
             "id": department + "wait_time",
+            
             "children": dcc.Graph(
                 id=department + "_wait_time_graph",
                 style={"height": "100%", "width": "100%"},
@@ -186,30 +187,46 @@ def generate_table_row_helper(department):
         },
     )
 
-def initialize_table():
-    """
-    :return: empty table children. This is intialized for registering all figure ID at page load.
-    """
 
-    # header_row
-    header = [
-        generate_table_row(
-            "header",
-            {"height": "50px"},
-            {"id": "header_department", "children": html.B("Department")},
-            {"id": "header_wait_time_min", "children": html.B("Wait Time Minutes")},
-            {"id": "header_care_score", "children": html.B("Care Score")},
-        )
+def df_to_table(df):
+    return html.Table(
+    [html.Tr([html.Th(col) for col in df.columns])]
+    + [
+        html.Tr([html.Td(df.iloc[i][col]) for col in df.columns])
+        for i in range(len(df))
     ]
+)
 
-    # department_row
-    rows = [generate_table_row_helper(department) for department in all_departments]
-    header.extend(rows)
-    empty_table = header
 
-    return empty_table
+def initialize_table():
+    df = DF_ANL
+    df1 = DF_CSTDM
+    df2 = DF_EQPPLN
+    return df_to_table(df)
 
-from werkzeug.wsgi import DispatcherMiddleware
+# def initialize_table():
+#     """
+#     :return: empty table children. This is intialized for registering all figure ID at page load.
+#     """
+
+#     # header_row
+#     header = [
+#         generate_table_row(
+#             "header",
+#             {"height": "50px"},
+#             {"id": "header_department", "children": html.B("Department")},
+#             {"id": "header_wait_time_min", "children": html.B("Wait Time Minutes")},
+#             {"id": "header_care_score", "children": html.B("Care Score")},
+#         )
+#     ]
+
+#     # department_row
+#     rows = [generate_table_row_helper(department) for department in all_departments]
+#     header.extend(rows)
+#     empty_table = header
+
+#     return empty_table
+
 
 dashapp = dash.Dash(__name__, server=app, url_base_pathname='/dashboard/')
 
@@ -247,7 +264,7 @@ dashapp.layout = html.Div(
                     children=[
                         html.B("Patient Volume"),
                         html.Hr(),
-                        dcc.Graph(id="patient_volume_hm"),
+                        dcc.Graph(id="patient_volume_hm", figure=process_product_fig()),
                     ],
                 ),
                 # Patient Wait time by Department
@@ -256,7 +273,8 @@ dashapp.layout = html.Div(
                     children=[
                         html.B("Patient Wait Time and Satisfactory Scores"),
                         html.Hr(),
-                        html.Div(id="wait_time_table", children=initialize_table()),
+                        html.Div(id="leads_table", className="row pretty_container table", children=initialize_table()),
+                        # html.Div(id="wait_time_table", children=initialize_table()),
                     ],
                 ),
             ],
@@ -264,8 +282,19 @@ dashapp.layout = html.Div(
     ],
 )
 
+# @dashapp.callback(
+#     Output("patient_volume_hm", "figure"),
+#     [
+#         Input("well-map", "selectedData"),
+#         Input("ternary-map", "selectedData"),
+#         Input("operator-select", "value"),
+#     ],
+# )
+
 @app.route('/dashboard')
 def render_dashboard():
     return redirect('/dash1')
 
-app2 = DispatcherMiddleware(app, {'/dash1': dashapp.server})
+
+# from werkzeug.wsgi import DispatcherMiddleware
+# app2 = DispatcherMiddleware(app, {'/dash1': dashapp.server})
