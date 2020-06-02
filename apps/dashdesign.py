@@ -15,7 +15,7 @@ DF_CSTDM = pd.read_excel('%s' %file_name, sheet_name = 'CUSTOMER_DEMAND', header
 DF_EQPPLN = pd.read_excel('%s' %file_name, sheet_name = 'EQP_PLAN', header=0, encoding='utf-8')
 DF_ANL = pd.read_excel('%s' %file_name, sheet_name = 'ANALYSIS', header=0, encoding='utf-8')
 
-clinic_list = ["Process of product", "Operating rate", "State of Eqipment"]
+clinic_list = ["Process of product", "Operating rate", "State of Eqipment(test)"]
 # DF_EQPPLN["EQP_ID"] = DF_EQPPLN["EQP_ID"].fillna("Not Identified")#비어있다면 이걸로 채워라
 admit_list = DF_EQPPLN["EQP_ID"].unique()
 all_departments = DF_CSTDM["PROD_ID"].unique().tolist()
@@ -198,7 +198,7 @@ def generate_patient_volume(start, end, clinic, hm_click, admit_type, reset):
         return figure
 
     elif clinic == "Operating rate" :
-        figure = operating_ratio_fig()
+        figure = operating_ratio_fig(start, end, admit_type)
         print("go들어옴")
         return figure
 

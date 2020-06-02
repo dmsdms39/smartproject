@@ -1,6 +1,6 @@
 from .models import *
 from apps import db
-
+from sqlalchemy import or_
 from datetime import datetime
 import json
 import pandas as pd
@@ -27,12 +27,15 @@ def process_product():
     return graphJSON
 
 def process_product_fig(start, end, admit_type):
+    
+    line_eqp_id = []
+    for eqp_id in admit_type:
+        line_eqp_id.append(StdLineEQP.query.filter_by(eqp_id = eqp_id).first().id)
 
     planeqp = db.session.query(PlanEQP).filter(
-        # PlanEQP.start_t > start, 
-        # PlanEQP.start_t < end,
-        PlanEQP.id.in_([1, 2, 3, 4, 5, 6, 7, 8]))
-        # StdLineEQP.query.filter_by(id = PlanEQP.id).first().eqp_id in admit_type)
+        PlanEQP.start_t > start, 
+        PlanEQP.start_t < end,
+        PlanEQP.line_eqp_id.in_(line_eqp_id))
 
     df1 = pd.read_sql(planeqp.statement, planeqp.session.bind)
     df1.rename(columns = {"start_t":"Start", "end_t":"Finish", "id":"Task"}, inplace = True)
@@ -46,8 +49,15 @@ def process_product_fig(start, end, admit_type):
 
     return fig
 
-def operating_ratio_fig():
-    vewres = db.session.query(ViewRes).filter()
+def operating_ratio_fig(start, end, admit_type):
+    line_eqp_id = []
+    for eqp_id in admit_type:
+        line_eqp_id.append(StdLineEQP.query.filter_by(eqp_id = eqp_id).first().id)
+
+    vewres = db.session.query(ViewRes).filter(
+        ViewRes.t_day > start, 
+        ViewRes.t_day < end,
+        ViewRes.line_eqp_id.in_(line_eqp_id))
     df2 = pd.read_sql(vewres.statement, vewres.session.bind)
     df2.sort_values(by=['t_day'], axis=0, inplace=True)
 
