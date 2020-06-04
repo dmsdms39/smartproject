@@ -16,9 +16,14 @@ DF_EQPPLN = pd.read_excel('%s' %file_name, sheet_name = 'EQP_PLAN', header=0, en
 DF_ANL = pd.read_excel('%s' %file_name, sheet_name = 'ANALYSIS', header=0, encoding='utf-8')
 
 clinic_list = ["Process of product", "Operating rate", "State of Eqipment(test)"]
-# DF_EQPPLN["EQP_ID"] = DF_EQPPLN["EQP_ID"].fillna("Not Identified")#비어있다면 이걸로 채워라
-admit_list = DF_EQPPLN["EQP_ID"].unique()
-all_departments = DF_CSTDM["PROD_ID"].unique().tolist()
+
+#table view name
+view_list = []
+for c in db.Model._decl_class_registry.values():
+    if hasattr(c, '__tablename__'):
+        view_list.append(c.__tablename__)
+
+admit_list = eqp_list()
 
 def description_card():
     """
@@ -43,14 +48,21 @@ def generate_control_card():
     return html.Div(
         id="control-card",
         children=[
-            html.P("Select Clinic"),
+            html.P("Select Chart"),
             dcc.Dropdown(
                 id="clinic-select",
                 options=[{"label": i, "value": i} for i in clinic_list],
                 value=clinic_list[0],
             ),
             html.Br(),
-            html.P("Select Check-In Time"),
+            html.P("Select Table"),
+            dcc.Dropdown(
+                id="view-select",
+                options=[{"label": i, "value": i} for i in view_list],
+                value=view_list[0],
+            ),
+            html.Br(),
+            html.P("Select Day of Manufacture"),
             dcc.DatePickerRange(
                 id="date-picker-select",
                 start_date=datetime(2019, 11, 8),
@@ -61,7 +73,7 @@ def generate_control_card():
             ),
             html.Br(),
             html.Br(),
-            html.P("Select Admit Source"),
+            html.P("Select Eqipments"),
             dcc.Dropdown(
                 id="admit-select",
                 options=[{"label": i, "value": i} for i in admit_list],
@@ -76,121 +88,9 @@ def generate_control_card():
         ],
     )
 
-# def generate_table_row(id, style, col1, col2, col3):
-#     """ Generate table rows.
-
-#     :param id: The ID of table row.
-#     :param style: Css style of this row.
-#     :param col1 (dict): Defining id and children for the first column.
-#     :param col2 (dict): Defining id and children for the second column.
-#     :param col3 (dict): Defining id and children for the third column.
-#     """
-
-#     return html.Div(
-#         id=id,
-#         className="row table-row",
-#         style=style,
-#         children=[
-#             html.Div(
-#                 id=col1["id"],
-#                 style={"display": "table", "height": "100%"},
-#                 className="two columns row-department",
-#                 children=col1["children"],
-#             ),
-#             html.Div(
-#                 id=col2["id"],
-#                 style={"textAlign": "center", "height": "100%"},
-#                 className="five columns",
-#                 children=col2["children"],
-#             ),
-#             html.Div(
-#                 id=col3["id"],
-#                 style={"textAlign": "center", "height": "100%"},
-#                 className="five columns",
-#                 children=col3["children"],
-#             ),
-#         ],
-#     )
-
-# def generate_table_row_helper(department):
-#     """Helper function.
-
-#     :param: department (string): Name of department.
-#     :return: Table row.
-#     """
-#     return generate_table_row(
-#         department,
-#         {},
-#         {"id": department + "_department", "children": html.B(department)},
-#         {
-#             "id": department + "wait_time",
-            
-#             "children": dcc.Graph(
-#                 id=department + "_wait_time_graph",
-#                 style={"height": "100%", "width": "100%"},
-#                 className="wait_time_graph",
-#                 config={
-#                     "staticPlot": False,
-#                     "editable": False,
-#                     "displayModeBar": False,
-#                 },
-#                 figure={
-#                     "layout": dict(
-#                         margin=dict(l=0, r=0, b=0, t=0, pad=0),
-#                         xaxis=dict(
-#                             showgrid=False,
-#                             showline=False,
-#                             showticklabels=False,
-#                             zeroline=False,
-#                         ),
-#                         yaxis=dict(
-#                             showgrid=False,
-#                             showline=False,
-#                             showticklabels=False,
-#                             zeroline=False,
-#                         ),
-#                         paper_bgcolor="rgba(0,0,0,0)",
-#                         plot_bgcolor="rgba(0,0,0,0)",
-#                     )
-#                 },
-#             ),
-#         },
-#         {
-#             "id": department + "_patient_score",
-#             "children": dcc.Graph(
-#                 id=department + "_score_graph",
-#                 style={"height": "100%", "width": "100%"},
-#                 className="patient_score_graph",
-#                 config={
-#                     "staticPlot": False,
-#                     "editable": False,
-#                     "displayModeBar": False,
-#                 },
-#                 figure={
-#                     "layout": dict(
-#                         margin=dict(l=0, r=0, b=0, t=0, pad=0),
-#                         xaxis=dict(
-#                             showgrid=False,
-#                             showline=False,
-#                             showticklabels=False,
-#                             zeroline=False,
-#                         ),
-#                         yaxis=dict(
-#                             showgrid=False,
-#                             showline=False,
-#                             showticklabels=False,
-#                             zeroline=False,
-#                         ),
-#                         paper_bgcolor="rgba(0,0,0,0)",
-#                         plot_bgcolor="rgba(0,0,0,0)",
-#                     )
-#                 },
-#             ),
-#         },
-#     )
 
 def generate_patient_volume(start, end, clinic, hm_click, admit_type, reset):
-    print(admit_type)
+    
     if clinic == "Process of product" :
         figure = process_product_fig(start, end, admit_type)
         
@@ -203,7 +103,6 @@ def generate_patient_volume(start, end, clinic, hm_click, admit_type, reset):
         return figure
 
 
-
 def df_to_table(df):
     return html.Table(
     [html.Tr([html.Th(col) for col in df.columns])]
@@ -213,39 +112,35 @@ def df_to_table(df):
     ]
 )
 
-
 def initialize_table():
     df = DF_ANL
     df1 = DF_CSTDM
     df2 = DF_EQPPLN
-    return df_to_table(df)
+    return df_to_table(df2)
 
-# def initialize_table():
-#     """
-#     :return: empty table children. This is intialized for registering all figure ID at page load.
-#     """
+def make_input_tb_std_eqp():
+    return [
+        dcc.Dropdown(
+            id="table_idx_eqp",
+            options=[{"label": i, "value": i} for i in admit_list],
+            value="eqp_id",
+        ),
+        dcc.Dropdown(
+            id="table_idx_step",
+            options=[{"label": i, "value": i} for i in ["PRESS","PAINT","FINISH"]],
+            value="step_id",
+        ),
+        html.Button(id='submit-button-state', n_clicks=0, children='Submit'),
+    ]
 
-#     # header_row
-#     header = [
-#         generate_table_row(
-#             "header",
-#             {"height": "50px"},
-#             {"id": "header_department", "children": html.B("Department")},
-#             {"id": "header_wait_time_min", "children": html.B("Wait Time Minutes")},
-#             {"id": "header_care_score", "children": html.B("Care Score")},
-#         )
-#     ]
+def make_input_PlanDM():
+    dcc.Input(id='input_test2', type='text', value ="")
 
-#     # department_row
-#     rows = [generate_table_row_helper(department) for department in all_departments]
-#     header.extend(rows)
-#     empty_table = header
+# def make_input_Pl():
 
-#     return empty_table
 
 
 dashapp = dash.Dash(__name__, server=app, url_base_pathname='/dashboard/')
-
 
 
 # 전체 
@@ -291,6 +186,9 @@ dashapp.layout = html.Div(
                         html.Hr(),
                         html.Div(id="leads_table", className="row pretty_container table", children=initialize_table()),
                         # html.Div(id="wait_time_table", children=initialize_table()),
+                        html.Div(
+                            id="leads_input",#children
+                        ),
                     ],
                 ),
             ],
@@ -299,13 +197,11 @@ dashapp.layout = html.Div(
 )
 
 
-
-
 @dashapp.callback(
     Output("patient_volume_hm", "figure"),
     [
         Input("date-picker-select", "start_date"),
-        Input("date-picker-select", "end_date"),#쿼리에서 필터로 2019.몇부터 몇 조절하기
+        Input("date-picker-select", "end_date"),
         Input("clinic-select", "value"),
         Input("patient_volume_hm", "clickData"),
         Input("admit-select", "value"),
@@ -327,15 +223,19 @@ def patient_volume_hm_callback(start, end, clinic, hm_click, admit_type, reset):
             reset = True  
     return generate_patient_volume(start, end, clinic, hm_click, admit_type, reset)
 
+@dashapp.callback(
+    Output("leads_input", "children"),
+    [
+        Input("view-select", "value"),
+        Input("reset-btn", "n_clicks"),
+    ],
+)
+def leads_input_callback(view, reset):
+    if(view == "tb_std_eqp"):
+        return make_input_tb_std_eqp()
+    else:
+        return make_input_PlanDM()
 
-# @dashapp.callback(
-#     Output("patient_volume_hm", "figure"),
-#     [
-#         Input("well-map", "selectedData"),
-#         Input("ternary-map", "selectedData"),
-#         Input("operator-select", "value"),
-#     ],
-# )
 
 @app.route('/dashboard')
 def render_dashboard():

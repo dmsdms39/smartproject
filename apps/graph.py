@@ -9,6 +9,14 @@ import plotly.figure_factory as ff
 import plotly.graph_objects as go
 import collections
 
+#eqp 리스트
+def eqp_list():
+    eqp = db.session.query(StdEQP.id).filter().order_by("id").all()
+    listeqp = []
+    for i in eqp:
+        listeqp.append(i[0])
+    return listeqp
+
 ##간트차트 그래프
 def process_product():
     planeqp = db.session.query(PlanEQP).filter()

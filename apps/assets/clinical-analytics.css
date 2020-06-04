@@ -20,6 +20,32 @@ hr {
     margin: 0.3rem 0rem;
 }
 
+.pretty_container {
+    border-radius: 5px;
+    background-color: white;
+    margin: 0.5rem;
+    padding: 1rem;
+    position: relative;
+    border: 1px solid #f1f1f1;
+}
+
+.row {
+    align-items: center;
+}  
+
+table {
+    border: 1px;
+    font-size: 1rem;
+    width: 100%;
+    font-family: Ubuntu;
+}
+
+.table {
+    height: 400px;
+    overflow: scroll;
+}
+
+
 .banner {
     height: 5.5rem;
     padding: 0rem 2rem 0rem;
@@ -177,10 +203,20 @@ H5, H3 {
         display: none;
     }
 
+    #leads_table {
+        -ms-grid-row: 6;
+        -ms-grid-row-span: 4;
+        grid-row: 6 / 10;
+        -ms-grid-column: 1;
+        -ms-grid-column-span: 6;
+        grid-column: 1 / 7;
+        max-height: 500px;
+    }
+
     #wait_time_table:after {
         content: "";
         display: table;
-        clear: both;
+        clear: both;       
     }
 
     #patient_volume_card > b, #wait_time_card > b {
@@ -189,6 +225,7 @@ H5, H3 {
         display: block;
         text-align: center;
     }
+
 
     .annotation-text {
         font-size: 0.8rem !important;
