@@ -8,7 +8,7 @@ colorama==0.4.3
 DateTime==4.3
 distlib==0.3.0
 docutils==0.16
-filelock==3.0.12
+filelock==3.20.1
 Flask==1.1.1
 Flask-Migrate==2.5.3
 Flask-Script==2.0.6
